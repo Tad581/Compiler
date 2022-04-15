@@ -23,25 +23,20 @@ extern CharCode charCodes[];
 
 void skipBlank()
 {
-  // printf("This is blank");
   readChar();
 }
 
 void skipComment()
 {
-  int ln = lineNo, cn = colNo;
-  readChar();
-  if (charCodes[currentChar] == CHAR_TIMES)
-  {
     while (1)
     {
       readChar();
       if (currentChar == -1)
       {
-        error(ERR_ENDOFCOMMENT, ln, cn);
+        error(ERR_ENDOFCOMMENT, lineNo, colNo);
         break;
       }
-      if (charCodes[currentChar] == CHAR_TIMES)
+      else if (charCodes[currentChar] == CHAR_TIMES)
       {
         readChar();
         if (charCodes[currentChar] == CHAR_RPAR)
@@ -52,25 +47,22 @@ void skipComment()
     }
     readChar();
   }
-}
 
 Token *readIdentKeyword(void)
-{
+{ 
   char word[MAX_IDENT_LEN];
-  memset(word, '\0', 30);
+  memset(word, '\0', MAX_IDENT_LEN);
   int count = 0;
   int ln = lineNo, cn = colNo;
-  word[0] = currentChar;
   while (charCodes[currentChar] == CHAR_DIGIT || charCodes[currentChar] == CHAR_LETTER)
   {
-    count++;
-    printf("Hello");
     if (count >= 30)
     {
       error(ERR_IDENTTOOLONG, ln, cn);
       break;
     }
     word[count] = currentChar;
+    count++;
     readChar();
   }
   TokenType type = checkKeyword(word);
@@ -89,16 +81,16 @@ Token *readNumber(void)
   memset(word, '\0', MAX_NUMBER_SIZE);
   int count = 0;
   int ln = lineNo, cn = colNo;
-  word[0] = currentChar;
+  // word[0] = currentChar;
   while (charCodes[currentChar] == CHAR_DIGIT)
   {
-    count++;
     if (count >= MAX_IDENT_LEN)
     {
       error(ERR_IDENTTOOLONG, ln, cn);
       break;
     }
     word[count] = currentChar;
+    count++;
     readChar();
   }
 
@@ -165,6 +157,7 @@ Token *getToken(void)
     skipBlank();
     return getToken();
   case CHAR_LETTER:
+  // printf("Hello");
     return readIdentKeyword();
   case CHAR_DIGIT:
     return readNumber();
@@ -246,11 +239,12 @@ Token *getToken(void)
     }
     else
     {
-      error(ERR_INVALIDSYMBOL, lineNo, colNo);
+      token = makeToken(SB_PERIOD, lineNo, colNo);
     }
     readChar();
     return token;
   case CHAR_COLON:
+    readChar();
     if (charCodes[currentChar] == CHAR_EQ)
     {
 
