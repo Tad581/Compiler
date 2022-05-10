@@ -296,7 +296,7 @@ void compileParams(void)
   if (lookAhead->tokenType == SB_LPAR)
   {
     eat(SB_LPAR);
-    compileParams();
+    compileParam();
     compileParams2();
     eat(SB_RPAR);
   }
@@ -495,6 +495,7 @@ void compileCondition(void)
 void compileCondition2(void)
 {
   // TODO
+  assert("condition2");
   switch (lookAhead->tokenType)
   {
   case SB_EQ:
@@ -558,7 +559,7 @@ void compileExpression3(void)
     compileExpression3();
     break;
   case SB_MINUS:
-    eat(SB_PLUS);
+    eat(SB_MINUS);
     compileTerm();
     compileExpression3();
     break;
@@ -618,6 +619,7 @@ void compileFactor(void)
     default:
       break;
     }
+    break;
   case SB_LPAR:
     eat(SB_LPAR);
     compileExpression();
