@@ -14,7 +14,6 @@
 Token *currentToken;
 Token *lookAhead;
 
-// Get current token and next token function
 void scan(void)
 {
   Token *tmp = currentToken;
@@ -23,8 +22,6 @@ void scan(void)
   free(tmp);
 }
 
-// Check the next token is the ideal token or not
-// Yes ? continue and show next token : stop and show error message
 void eat(TokenType tokenType)
 {
   if (lookAhead->tokenType == tokenType)
@@ -36,7 +33,6 @@ void eat(TokenType tokenType)
     missingToken(tokenType, lookAhead->lineNo, lookAhead->colNo);
 }
 
-// Check hole program
 void compileProgram(void)
 {
   assert("Parsing a Program ....");
@@ -354,6 +350,7 @@ void compileStatements2(void)
 
 void compileStatement(void)
 {
+  //I have some bug here
   switch (lookAhead->tokenType)
   {
   case TK_IDENT:
@@ -495,7 +492,6 @@ void compileCondition(void)
 void compileCondition2(void)
 {
   // TODO
-  assert("condition2");
   switch (lookAhead->tokenType)
   {
   case SB_EQ:
