@@ -9,9 +9,9 @@ PROCEDURE INPUT;
 VAR I : INTEGER;
     TMP : INTEGER;
 BEGIN
-  N := READI;
+  (N,M) := (N+10, M+2);
   FOR I := 1 TO N DO
-     A(.I.) := READI;
+     A(.I,B.) := READI;
 END;
 
 PROCEDURE OUTPUT;

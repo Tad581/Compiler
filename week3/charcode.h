@@ -8,6 +8,7 @@
 #define __CHARCODE_H__
 
 typedef enum {
+  CHAR_TAB,
   CHAR_SPACE,
   CHAR_LETTER,
   CHAR_DIGIT,
@@ -26,7 +27,8 @@ typedef enum {
   CHAR_SINGLEQUOTE,
   CHAR_LPAR,
   CHAR_RPAR,
-  CHAR_UNKNOWN
+  CHAR_UNKNOWN,
+  CHAR_QUESTION
 } CharCode;
 
 #endif

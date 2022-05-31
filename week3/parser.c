@@ -5,6 +5,7 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "reader.h"
 #include "scanner.h"
@@ -28,6 +29,10 @@ void eat(TokenType tokenType)
   {
     printToken(lookAhead);
     scan();
+    if (lookAhead->lineNo > currentToken->lineNo)
+    {
+      printf("\n");
+    }
   }
   else
     missingToken(tokenType, lookAhead->lineNo, lookAhead->colNo);
@@ -35,18 +40,18 @@ void eat(TokenType tokenType)
 
 void compileProgram(void)
 {
-  assert("Parsing a Program ....");
+  // assert("Parsing a Program ....");
   eat(KW_PROGRAM);
   eat(TK_IDENT);
   eat(SB_SEMICOLON);
   compileBlock();
   eat(SB_PERIOD);
-  assert("Program parsed!");
+  // assert("Program parsed!");
 }
 
 void compileBlock(void)
 {
-  assert("Parsing a Block ....");
+  // assert("Parsing a Block ....");
   if (lookAhead->tokenType == KW_CONST)
   {
     eat(KW_CONST);
@@ -56,7 +61,7 @@ void compileBlock(void)
   }
   else
     compileBlock2();
-  assert("Block parsed!");
+  // assert("Block parsed!");
 }
 
 void compileBlock2(void)
@@ -130,6 +135,21 @@ void compileTypeDecl(void)
   eat(SB_SEMICOLON);
 }
 
+void compileMultiVar(void)
+{
+  eat(TK_IDENT);
+  if (lookAhead->tokenType == SB_EQ)
+  {
+    eat(SB_EQ);
+    eat(TK_NUMBER);
+  }
+  if (lookAhead->tokenType == SB_COMMA)
+  {
+    eat(SB_COMMA);
+    compileMultiVar();
+  }
+}
+
 void compileVarDecls(void)
 {
   // TODO
@@ -140,7 +160,8 @@ void compileVarDecls(void)
 void compileVarDecl(void)
 {
   // TODO
-  eat(TK_IDENT);
+  // For test
+  compileMultiVar();
   eat(SB_COLON);
   compileType();
   eat(SB_SEMICOLON);
@@ -148,7 +169,7 @@ void compileVarDecl(void)
 
 void compileSubDecls(void)
 {
-  assert("Parsing subtoutines ....");
+  // assert("Parsing subtoutines ....");
   // TODO
   while (lookAhead->tokenType == KW_PROCEDURE || lookAhead->tokenType == KW_FUNCTION)
   {
@@ -157,12 +178,12 @@ void compileSubDecls(void)
     else if (lookAhead->tokenType == KW_FUNCTION)
       compileFuncDecl();
   }
-  assert("Subtoutines parsed ....");
+  // assert("Subtoutines parsed ....");
 }
 
 void compileFuncDecl(void)
 {
-  assert("Parsing a function ....");
+  // assert("Parsing a function ....");
   // TODO
   eat(KW_FUNCTION);
   eat(TK_IDENT);
@@ -172,12 +193,12 @@ void compileFuncDecl(void)
   eat(SB_SEMICOLON);
   compileBlock();
   eat(SB_SEMICOLON);
-  assert("Function parsed ....");
+  // assert("Function parsed ....");
 }
 
 void compileProcDecl(void)
 {
-  assert("Parsing a procedure ....");
+  // assert("Parsing a procedure ....");
   // TODO
   eat(KW_PROCEDURE);
   eat(TK_IDENT);
@@ -185,7 +206,7 @@ void compileProcDecl(void)
   eat(SB_SEMICOLON);
   compileBlock();
   eat(SB_SEMICOLON);
-  assert("Procedure parsed ....");
+  // assert("Procedure parsed ....");
 }
 
 void compileUnsignedConstant(void)
@@ -348,9 +369,32 @@ void compileStatements2(void)
   }
 }
 
+void compileMultiAssign(void)
+{
+  eat(SB_LPAR);
+  while (lookAhead->tokenType != SB_RPAR)
+  {
+    eat(TK_IDENT);
+    if (lookAhead->tokenType == SB_COMMA)
+      eat(SB_COMMA);
+  }
+  eat(SB_RPAR);
+  eat(SB_ASSIGN);
+  eat(SB_LPAR);
+  while (lookAhead->tokenType != SB_RPAR)
+  {
+    compileExpression();
+    if (lookAhead->tokenType == SB_COMMA)
+    {
+      eat(SB_COMMA);
+    }
+  }
+  eat(SB_RPAR);
+}
+
 void compileStatement(void)
 {
-  //I have some bug here
+  // I have some bug here
   switch (lookAhead->tokenType)
   {
   case TK_IDENT:
@@ -371,6 +415,9 @@ void compileStatement(void)
   case KW_FOR:
     compileForSt();
     break;
+  case SB_LPAR:
+    compileMultiAssign();
+    break;
     // EmptySt needs to check FOLLOW tokens
   case SB_SEMICOLON:
   case KW_END:
@@ -383,48 +430,74 @@ void compileStatement(void)
   }
 }
 
+void compileConditionAssign(void)
+{
+  switch (lookAhead->tokenType)
+  {
+  case SB_GT:
+    eat(SB_GT);
+    break;
+  case SB_LT:
+    eat(SB_LT);
+    break;
+  case SB_LE:
+    eat(SB_LE);
+    break;
+  case SB_GE:
+    eat(SB_GE);
+    break;
+  default:
+    break;
+  }
+  eat(TK_IDENT);
+  eat(SB_QUESTION);
+  compileExpression();
+  eat(SB_COLON);
+  compileExpression();
+}
+
 void compileAssignSt(void)
 {
-  assert("Parsing an assign statement ....");
+  // assert("Parsing an assign statement ....");
   // TODO
   eat(TK_IDENT);
   if (lookAhead->tokenType == SB_LSEL)
     compileIndexes();
   eat(SB_ASSIGN);
   compileExpression();
-  assert("Assign statement parsed ....");
+  // assert("Assign statement parsed ....");
 }
 
 void compileCallSt(void)
 {
-  assert("Parsing a call statement ....");
+  // assert("Parsing a call statement ....");
   // TODO
   eat(KW_CALL);
   eat(TK_IDENT);
   compileArguments();
-  assert("Call statement parsed ....");
+  // assert("Call statement parsed ....");
 }
 
 void compileGroupSt(void)
 {
-  assert("Parsing a group statement ....");
+  // assert("Parsing a group statement ....");
   // TODO
   eat(KW_BEGIN);
   compileStatements();
   eat(KW_END);
-  assert("Group statement parsed ....");
+  // assert("Group statement parsed ....");
 }
 
 void compileIfSt(void)
 {
-  assert("Parsing an if statement ....");
+  // assert("Parsing an if statement ....");
   eat(KW_IF);
   compileCondition();
   eat(KW_THEN);
   compileStatement();
   if (lookAhead->tokenType == KW_ELSE)
     compileElseSt();
-  assert("If statement parsed ....");
+  // assert("If statement parsed ....");
 }
 
 void compileElseSt(void)
@@ -435,28 +508,67 @@ void compileElseSt(void)
 
 void compileWhileSt(void)
 {
-  assert("Parsing a while statement ....");
+  // assert("Parsing a while statement ....");
   // TODO
   eat(KW_WHILE);
   compileCondition();
   eat(KW_DO);
   compileStatement();
-  assert("While statement pased ....");
+  // assert("While statement pased ....");
+}
+
+void compileAnotherFor(void)
+{
+  eat(SB_LPAR);
+  eat(TK_IDENT);
+  eat(SB_ASSIGN);
+  eat(TK_NUMBER);
+  eat(SB_SEMICOLON);
+  eat(TK_IDENT);
+  switch (lookAhead->tokenType)
+  {
+  case SB_LT:
+    eat(SB_LT);
+    break;
+  case SB_LE:
+    eat(SB_LE);
+    break;
+  case SB_GT:
+    eat(SB_GT);
+    break;
+  case SB_GE:
+    eat(SB_GE);
+    break;
+  default:
+    eat(SB_LT);
+    break;
+  }
+  eat(TK_NUMBER);
+  eat(SB_SEMICOLON);
+  eat(TK_IDENT);
+  eat(SB_ASSIGN);
+  compileExpression();
+  eat(SB_RPAR);
 }
 
 void compileForSt(void)
 {
-  assert("Parsing a for statement ....");
+  // assert("Parsing a for statement ....");
   // TODO
   eat(KW_FOR);
-  eat(TK_IDENT);
-  eat(SB_ASSIGN);
-  compileExpression();
-  eat(KW_TO);
-  compileExpression();
-  eat(KW_DO);
+  if (lookAhead->tokenType == SB_LPAR)
+    compileAnotherFor();
+  else
+  {
+    eat(TK_IDENT);
+    eat(SB_ASSIGN);
+    compileExpression();
+    eat(KW_TO);
+    compileExpression();
+    eat(KW_DO);
+  }
   compileStatement();
-  assert("For statement parsed ....");
+  // assert("For statement parsed ....");
 }
 
 void compileArguments(void)
@@ -520,7 +632,7 @@ void compileCondition2(void)
 
 void compileExpression(void)
 {
-  assert("Parsing an expression");
+  // assert("Parsing an expression");
   // TODO
   switch (lookAhead->tokenType)
   {
@@ -530,11 +642,12 @@ void compileExpression(void)
   case SB_MINUS:
     eat(SB_MINUS);
     break;
+  // Condition assign
   default:
     break;
   }
   compileExpression2();
-  assert("Expression parsed");
+  // assert("Expression parsed");
 }
 
 void compileExpression2(void)
@@ -612,6 +725,7 @@ void compileFactor(void)
     case SB_LPAR:
       compileArguments();
       break;
+    // For condition assign
     default:
       break;
     }
@@ -627,13 +741,25 @@ void compileFactor(void)
   }
 }
 
+// For another array type
+void compileAnotherArray(void)
+{
+  while (lookAhead->tokenType != SB_RSEL)
+  {
+    compileExpression();
+    if (lookAhead->tokenType == SB_COMMA)
+      eat(SB_COMMA);
+  }
+}
+
 void compileIndexes(void)
 {
   // TODO
   if (lookAhead->tokenType == SB_LSEL)
   {
     eat(SB_LSEL);
-    compileExpression();
+    // compileExpression();
+    compileAnotherArray();
     eat(SB_RSEL);
     compileIndexes();
   }
