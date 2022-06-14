@@ -1,4 +1,4 @@
-Program PRG
+Program PRG;
     Const c1 = 10
     Const c2 = 'a'
     Type t1 = Arr(10, Int)
