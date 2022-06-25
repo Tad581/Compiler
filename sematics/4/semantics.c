@@ -12,35 +12,35 @@
 extern SymTab *symtab;
 extern Token *currentToken;
 
+// Find object with name in symtab table (the whole program)
 Object *lookupObject(char *name)
 {
-  // TODO
-  Scope *currentscope = symtab->currentScope;
-  Object *obj = NULL;
+  Scope *scope = symtab->currentScope;
+  Object *obj;
 
-  while (currentscope != NULL)
+  while (scope != NULL)
   {
-    obj = findObject(currentscope->objList, name);
+    obj = findObject(scope->objList, name);
     if (obj != NULL)
-    {
       return obj;
-    }
-    currentscope = currentscope->outer;
+    scope = scope->outer;
   }
-
+  obj = findObject(symtab->globalObjectList, name);
+  if (obj != NULL)
+    return obj;
   return NULL;
 }
 
+// Check if ident is fresh or not in current scope
 void checkFreshIdent(char *name)
 {
-  // TODO
-  if (lookupObject(name) != NULL)
+  if (findObject(symtab->currentScope->objList, name) != NULL)
     error(ERR_DUPLICATE_IDENT, currentToken->lineNo, currentToken->colNo);
 }
 
+// Check if ident if fresh or not in the whole program
 Object *checkDeclaredIdent(char *name)
 {
-  // TODO
   Object *obj = lookupObject(name);
   if (obj == NULL)
   {
@@ -49,33 +49,37 @@ Object *checkDeclaredIdent(char *name)
   return obj;
 }
 
+// Check if constant value is fresh or not in the whole program
 Object *checkDeclaredConstant(char *name)
 {
-  // TODO
+  // Check fresh
   Object *obj = lookupObject(name);
   if (obj == NULL)
     error(ERR_UNDECLARED_CONSTANT, currentToken->lineNo, currentToken->colNo);
+  // Check kind is as expected or not
   if (obj->kind != OBJ_CONSTANT)
     error(ERR_INVALID_CONSTANT, currentToken->lineNo, currentToken->colNo);
 
   return obj;
 }
 
+// Check if type is fresh or not in the whole program
 Object *checkDeclaredType(char *name)
 {
-  // TODO
+  // Check fresh
   Object *obj = lookupObject(name);
   if (obj == NULL)
     error(ERR_UNDECLARED_TYPE, currentToken->lineNo, currentToken->colNo);
+  // Check kind
   if (obj->kind != OBJ_TYPE)
     error(ERR_INVALID_TYPE, currentToken->lineNo, currentToken->colNo);
 
   return obj;
 }
 
+// Check variable
 Object *checkDeclaredVariable(char *name)
 {
-  // TODO
   Object *obj = lookupObject(name);
   if (obj == NULL)
     error(ERR_UNDECLARED_VARIABLE, currentToken->lineNo, currentToken->colNo);
@@ -85,9 +89,9 @@ Object *checkDeclaredVariable(char *name)
   return obj;
 }
 
+// Check function
 Object *checkDeclaredFunction(char *name)
 {
-  // TODO
   Object *obj = lookupObject(name);
   if (obj == NULL)
     error(ERR_UNDECLARED_FUNCTION, currentToken->lineNo, currentToken->colNo);
@@ -97,9 +101,9 @@ Object *checkDeclaredFunction(char *name)
   return obj;
 }
 
+// Check procedure
 Object *checkDeclaredProcedure(char *name)
 {
-  // TODO
   Object *obj = lookupObject(name);
   if (obj == NULL)
     error(ERR_UNDECLARED_PROCEDURE, currentToken->lineNo, currentToken->colNo);
@@ -111,7 +115,6 @@ Object *checkDeclaredProcedure(char *name)
 
 Object *checkDeclaredLValueIdent(char *name)
 {
-  // TODO
   Object *obj = lookupObject(name);
   if (obj == NULL)
     error(ERR_UNDECLARED_IDENT, currentToken->lineNo, currentToken->colNo);
@@ -132,3 +135,45 @@ Object *checkDeclaredLValueIdent(char *name)
   return obj;
 }
 
+// Check if type valid or not
+void checkIntType(Type *type)
+{
+  // TODO
+  if (type != NULL && type->typeClass == TP_INT)
+    return;
+  else
+    error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+}
+
+void checkCharType(Type *type)
+{
+  // TODO
+  if (type != NULL && type->typeClass == TP_CHAR)
+    return;
+  else
+    error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+}
+
+void checkBasicType(Type *type)
+{
+  // TODO
+  checkIntType(type);
+  checkCharType(type);
+}
+
+void checkArrayType(Type *type)
+{
+  // TODO
+  if ((type != NULL) && (type->typeClass == TP_ARRAY))
+    return;
+  else
+    error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+}
+
+// Compare 2 input type
+void checkTypeEquality(Type *type1, Type *type2)
+{
+  // TODO
+  if (compareType(type1, type2) == 0)
+    error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+}
