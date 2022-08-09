@@ -18,7 +18,6 @@ int readChar(void) {
     lineNo ++;
     colNo = 0;
   }
-  printf("%c", currentChar);
   return currentChar;
 }
 

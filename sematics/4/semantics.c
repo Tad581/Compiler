@@ -157,8 +157,10 @@ void checkCharType(Type *type)
 void checkBasicType(Type *type)
 {
   // TODO
-  checkIntType(type);
-  checkCharType(type);
+  if ((type != NULL) && ((type->typeClass == TP_INT) || (type->typeClass == TP_CHAR)))
+    return;
+  else
+    error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
 }
 
 void checkArrayType(Type *type)
